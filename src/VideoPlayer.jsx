@@ -9,8 +9,8 @@ function VideoPlayer() {
 
   useEffect(() => {
     const canvas = new fabric.Canvas('fabricCanvas');
-    canvas.setHeight(360);
-    canvas.setWidth(640);
+    canvas.setHeight(1000);
+    canvas.setWidth(1200);
 
     const fabricVideo = new fabric.Image(videoRef.current, {
       left: 0,
@@ -19,7 +19,6 @@ function VideoPlayer() {
       height: 360,
       selectable: true, // Allows the video to be selected and moved
     });
-
     canvas.add(fabricVideo);
 
     setIsPlaying(false);
