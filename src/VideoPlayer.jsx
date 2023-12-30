@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { fabric } from 'fabric';
+import * as faceapi from 'face-api.js';
 
 function VideoPlayer() {
   const [videoUrl, setVideoUrl] = useState('');
@@ -8,8 +9,17 @@ function VideoPlayer() {
   const videoRef = useRef(null);
 
   useEffect(() => {
+    // Load face-api.js models
+    Promise.all([
+      faceapi.nets.tinyFaceDetector.loadFromUri('/models'),
+      faceapi.nets.faceLandmark68Net.loadFromUri('/models'),
+      faceapi.nets.faceRecognitionNet.loadFromUri('/models'),
+    ]).then(() => console.log('Face-api.js models loaded'));
+  }, []);
+
+  useEffect(() => {
     const canvas = new fabric.Canvas('fabricCanvas');
-    canvas.setHeight(1000);
+    canvas.setHeight(800);
     canvas.setWidth(1200);
 
     const fabricVideo = new fabric.Image(videoRef.current, {
@@ -17,15 +27,9 @@ function VideoPlayer() {
       top: 0,
       width: 640,
       height: 360,
-      selectable: true, // Allows the video to be selected and moved
+      selectable: true,
     });
     canvas.add(fabricVideo);
-
-
-    var triangle = new fabric.Triangle({
-      width: 60, height: 80, fill: 'blue', left: 50, top: 50
-    });
-    canvas.add(triangle)
 
     setIsPlaying(false);
   }, [videoUrl]);
@@ -47,6 +51,7 @@ function VideoPlayer() {
       } else {
         video.play();
         playVideoOnCanvas();
+        startFaceDetection();
       }
       setIsPlaying(!isPlaying);
     }
@@ -62,9 +67,33 @@ function VideoPlayer() {
         clearInterval(intervalId);
         setIsPlaying(false);
       } else {
-        context.drawImage(video, 0, 0, 640, 360);
+        context.drawImage(video, 0, 0, 300, 400);
       }
     }, 33); // 30 frames per second
+  };
+
+  const startFaceDetection = async () => {
+    const video = videoRef.current;
+
+    if (video) {
+      await faceapi.loadTinyFaceDetectorModel('/models');
+      await faceapi.loadFaceLandmarkModel('/models');
+      await faceapi.loadFaceRecognitionModel('/models');
+
+      const displaySize = { width: video.width, height: video.height };
+
+      faceapi.matchDimensions(canvasRef.current, displaySize);
+
+      setInterval(async () => {
+        const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptors();
+
+        const canvas = canvasRef.current;
+        const context = canvas.getContext('2d');
+
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        faceapi.draw.drawDetections(canvas, faceapi.resizeResults(detections, displaySize));
+      }, 100);
+    }
   };
 
   return (
