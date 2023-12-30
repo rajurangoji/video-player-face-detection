@@ -21,6 +21,12 @@ function VideoPlayer() {
     });
     canvas.add(fabricVideo);
 
+
+    var triangle = new fabric.Triangle({
+      width: 60, height: 80, fill: 'blue', left: 50, top: 50
+    });
+    canvas.add(triangle)
+
     setIsPlaying(false);
   }, [videoUrl]);
 
