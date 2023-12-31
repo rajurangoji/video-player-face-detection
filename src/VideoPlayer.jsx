@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { fabric } from 'fabric';
 import * as faceapi from 'face-api.js';
 
+import './App.css'
+
 function VideoPlayer() {
   const [videoUrl, setVideoUrl] = useState('');
   const [isPlaying, setIsPlaying] = useState(false);
@@ -19,8 +21,8 @@ function VideoPlayer() {
 
   useEffect(() => {
     const canvas = new fabric.Canvas('fabricCanvas');
-    canvas.setHeight(800);
-    canvas.setWidth(1200);
+    canvas.setHeight(500);
+    canvas.setWidth(1100);
 
     const fabricVideo = new fabric.Image(videoRef.current, {
       left: 0,
@@ -98,20 +100,33 @@ function VideoPlayer() {
 
   return (
     <div>
-      <input type="file" accept="video/*" onChange={handleFileChange} />
-      <button onClick={handlePlayPause}>{isPlaying ? 'Pause' : 'Play'}</button>
+      <div className='input-container'>
+        <input type="file" accept="video/*" onChange={handleFileChange} />
+        <button onClick={handlePlayPause} className="button-87" >{isPlaying ? 'Pause' : 'Play'}</button>
 
-      <canvas id="fabricCanvas" ref={canvasRef}></canvas>
-
-      {videoUrl && (
-        <video
-          ref={videoRef}
-          src={videoUrl}
-          width={200}
-          height={360}
-          style={{ display: 'none' }}
-        ></video>
-      )}
+      </div>
+      <div className='container'>
+        <div className="instructions">
+          <h3>Instructions :</h3>
+          <ul>
+            <li>Click on the choose file to upload the vedio.</li>
+            <li>After Uploading the video <b><u>click on the play buton</u></b>, The video player will start the face detection afrer 1 secound. </li>
+            <li>click on Pause button to detect the face.</li>
+          </ul>
+        </div>
+        <div className="canvas-container">
+          <canvas id="fabricCanvas" ref={canvasRef}></canvas>
+          {videoUrl && (
+            <video
+              ref={videoRef}
+              src={videoUrl}
+              width={200}
+              height={360}
+              style={{ display: 'none' }}
+            ></video>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
